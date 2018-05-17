@@ -32,7 +32,7 @@ const main = ( httpsApp, httpAppBehaviour) => {
 
   //endpoint for letsencrypt / certbot challenges
   httpApp.get('/.well-known/acme-challenge/:fileName', (req, res) => {
-    const filePath = path.join(__dirname, '.well-known/acme-challenge/', req.params.fileName)
+    const filePath = path.join('/usr/src/server', '.well-known/acme-challenge/', req.params.fileName)
     if (fs.existsSync(filePath)) {
       res.sendFile(filePath)
     } else {
