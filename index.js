@@ -7,12 +7,13 @@ const http = require('http')
 const https = require('https')
 const {spawn} = require('child_process')
 
-export default function auto_ssl( httpsApp, httpAppBehaviour) {
+const main = ( httpsApp, httpAppBehaviour) => {
 
   if(!(process.env.CERT_DOMAINNAMES && process.env.CERT_EMAIL))
     throw('Can not generate or watch SSL certificates without access to CERT_DOMAINNAMES and CERT_EMAIL')
 
   const domain = process.env.CERT_DOMAINNAMES.split(',')[0]
+  let certificate, certPath = `/etc/letsencrypt/live/${domain}`
 
   const server = {
     http: null,
@@ -50,16 +51,6 @@ export default function auto_ssl( httpsApp, httpAppBehaviour) {
     getNewCertificates()
   })
 
-
-  let certificate, certPath = `/etc/letsencrypt/live/${domain}`
-
-  certificate = readCertificate ()
-  if ( certificate ) {
-    createHttpsServer()
-    watchCertificateFiles()
-  }
-
-
   /// functions
   {
     let watching = false
@@ -79,7 +70,8 @@ export default function auto_ssl( httpsApp, httpAppBehaviour) {
       initServer.on('close', (code) => {
         console.log(`letsencrypt_webroot.sh exited with code ${code}.`)
         if ( !certificate ) certificate = readCertificate()
-        if ( !server.https ) createHttpsServer()
+        console.log('certificate-------')
+        if ( !server.https && certificate ) createHttpsServer()
         if ( !watching ) watchCertificateFiles()
       })
     }
@@ -121,5 +113,13 @@ export default function auto_ssl( httpsApp, httpAppBehaviour) {
     }
   }
 
+  certificate = readCertificate ()
+  if ( certificate ) {
+    createHttpsServer()
+    watchCertificateFiles()
+  }
+
   return server
 }
+
+module.exports = main
