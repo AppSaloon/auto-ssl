@@ -43,7 +43,9 @@ const main = ( httpsApp, httpAppBehaviour) => {
     }
   })
 
-  httpAppBehaviour.map( ({method, path, cb}) => httpApp[method](path, cb) )
+  httpAppBehaviour.map(({method, path, cb, args}) => {
+    args ? httpApp[method](...args) : httpApp[method](path, cb)
+  })
 
   server.http = http.createServer(httpApp)
   server.http.listen(80, () => {
