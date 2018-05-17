@@ -56,7 +56,7 @@ const main = ( httpsApp, httpAppBehaviour) => {
     let watching = false
 
     function getNewCertificates () {
-      const initServer = spawn('.', ['/bin/generate_ssl_certificate.sh'], {cwd: '/', shell: true})
+      const initServer = spawn('.', ['/bin/letsencrypt_webroot.sh'], {cwd: '/', shell: true})
       console.log('running letsencrypt_webroot.sh')
 
       initServer.stdout.on('data', (data) => {
