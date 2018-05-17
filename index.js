@@ -70,7 +70,6 @@ const main = ( httpsApp, httpAppBehaviour) => {
       initServer.on('close', (code) => {
         console.log(`letsencrypt_webroot.sh exited with code ${code}.`)
         if ( !certificate ) certificate = readCertificate()
-        console.log('certificate-------')
         if ( !server.https && certificate ) createHttpsServer()
         if ( !watching ) watchCertificateFiles()
       })
@@ -108,7 +107,7 @@ const main = ( httpsApp, httpAppBehaviour) => {
         })
         watching = true
       } catch ( e ) {
-        console.log(`Certificate files does not yet exist in ${certPath}`)
+        // Certificate files do not exist yet
       }
     }
   }
