@@ -1,11 +1,11 @@
 {
   "name": "auto-ssl-on-express-with-docker",
-  "version": "1.0.8",
-  "description": "",
+  "version": "1.0.10",
+  "description": "Package which installs and configures certbot to automatically generate and watch SSL certificate files.",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "postinstall": "bash ./bin/main.sh"
+    "postinstall": ". ./bin/main.sh"
   },
   "repository": {
     "type": "git",

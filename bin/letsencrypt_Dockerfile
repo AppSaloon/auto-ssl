@@ -1,25 +1,18 @@
-# base image; changing this might cause problems you need to fix in this Dockerfile.
-FROM node:8.6.0-slim
+FROM node:carbon-alpine
 
-# install nano & cron
-RUN apt-get update \
- && apt-get install nano cron -y \
- && apt-get clean
-
-# install letsencrypt's certbot
-WORKDIR /certbot
-RUN wget https://dl.eff.org/certbot-auto \
- && chmod a+x certbot-auto \
- && ./certbot-auto -n; exit 0
+# adds the packages certbot and tini
+RUN apk add certbot tini --no-cache
+ENTRYPOINT ["/sbin/tini", "--"]
 
 # copy and chmod the shell script which will initiate the webroot
 COPY letsencrypt_webroot.sh /
 RUN chmod +x /letsencrypt_webroot.sh
 
+RUN crond -b
+
 # setup certificate renewal cron
 COPY letsencrypt_cronjob /
-RUN crontab /letsencrypt_cronjob \
- && cron
+RUN crontab /letsencrypt_cronjob
 RUN rm /letsencrypt_cronjob
 
 # port 80 is mandatory for webroot challenge
@@ -27,15 +20,9 @@ RUN rm /letsencrypt_cronjob
 EXPOSE 80
 EXPOSE 443
 
-# tini for more efficient docker resource management, note it uses this image'sentrypoint
-# can be removed if necessary
-ENV TINI_VERSION v0.17.0
-ADD https://github.com/krallin/tini/releases/download/${TINI_VERSION}/tini /tini
-RUN chmod +x /tini
-ENTRYPOINT ["/tini", "--"]
-
 # the directory for your app within the docker image
-WORKDIR usr/src/app
+# NOTE: this must not be changed
+WORKDIR usr/src/server
 
 ######################################################################################
 
