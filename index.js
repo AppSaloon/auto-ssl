@@ -7,12 +7,13 @@ const http = require('http')
 const https = require('https')
 const {spawn} = require('child_process')
 
-const main = ( httpsApp, httpAppBehaviour) => {
+const main = ( httpsApp, httpAppCustom) => {
 
-  if(!(process.env.CERT_DOMAINNAMES && process.env.CERT_EMAIL))
-    throw('Can not generate or watch SSL certificates without access to CERT_DOMAINNAMES and CERT_EMAIL')
+  if(!(process.env.CERT_DOMAINNAMES && process.env.CERT_EMAIL && process.env.CERT_WEBROOT_PATH))
+    throw('Can not generate or watch SSL certificates without access to CERT_DOMAINNAMES, CERT_EMAIL and CERT_WEBROOT_PATH')
 
   const domain = process.env.CERT_DOMAINNAMES.split(',')[0]
+  const webroot = process.env.CERT_WEBROOT_PATH
   let certificate, certPath = `/etc/letsencrypt/live/${domain}`
 
   const server = {
@@ -20,19 +21,12 @@ const main = ( httpsApp, httpAppBehaviour) => {
     https: null
   }
 
-  httpAppBehaviour = httpAppBehaviour || [
-    {
-      method: 'get',
-      path: '*',
-      cb: (req, res) => res.redirect(`https://${req.headers.host}${req.url}`)
-    }
-  ]
+  const httpAppDefault = express()
+  httpAppDefault.get('*', (req, res) => res.redirect(`https://${req.headers.host}${req.url}`))
 
   const httpApp = express()
-
-  //endpoint for letsencrypt / certbot challenges
   httpApp.get('/.well-known/acme-challenge/:fileName', (req, res) => {
-    const filePath = path.join('/usr/src/server', '.well-known/acme-challenge/', req.params.fileName)
+    const filePath = path.join(webroot, '.well-known/acme-challenge/', req.params.fileName)
     if (fs.existsSync(filePath)) {
       res.sendFile(filePath)
     } else {
@@ -42,10 +36,7 @@ const main = ( httpsApp, httpAppBehaviour) => {
       }) // Bad request
     }
   })
-
-  httpAppBehaviour.map(({method, path, cb, args}) => {
-    args ? httpApp[method](...args) : httpApp[method](path, cb)
-  })
+  httpApp.use('*', httpAppCustom || httpAppDefault)
 
   server.http = http.createServer(httpApp)
   server.http.listen(80, () => {

@@ -20,9 +20,11 @@ RUN rm /letsencrypt_cronjob
 EXPOSE 80
 EXPOSE 443
 
+ENV DOCKER_BUILD="true"
+
 # the directory for your app within the docker image
-# NOTE: this must not be changed
-WORKDIR usr/src/server
+# NOTE: if you need to change this, change the $CERT_WEBROOT_PATH env
+WORKDIR $CERT_WEBROOT_PATH
 
 ######################################################################################
 
@@ -31,4 +33,5 @@ WORKDIR usr/src/server
 ######################################################################################
 
 # the command which starts your express server. Rename 'index.js' to the appropriate filename
+ENV DOCKER_BUILD="false"
 CMD [ "node", "index.js" ]
