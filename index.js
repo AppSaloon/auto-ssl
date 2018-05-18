@@ -6,14 +6,31 @@ const fs = require('fs')
 const http = require('http')
 const https = require('https')
 const {spawn} = require('child_process')
+const cron = require('node-cron')
 
 const main = ( httpsApp, httpAppCustom) => {
 
-  if(!(process.env.CERT_DOMAINNAMES && process.env.CERT_EMAIL && process.env.CERT_WEBROOT_PATH))
-    throw('Can not generate or watch SSL certificates without access to CERT_DOMAINNAMES, CERT_EMAIL and CERT_WEBROOT_PATH')
+  if(!(process.env.CERT_DOMAINNAMES && process.env.CERT_EMAIL))
+    throw('Can not generate or watch SSL certificates without access to CERT_DOMAINNAMES and CERT_EMAIL')
+
+  cron.schedule('51 3 * * 4', () => {
+    const renew = spawn('certbot', 'renew --webroot --webroot-path /usr/src/server >> /renew.log'.split(' '), {cwd: '/', shell: true})
+    console.log('renewing certificates')
+
+    renew.stdout.on('data', (data) => {
+      console.log(data.toString())
+    })
+
+    renew.stderr.on('data', (data) => {
+      console.log(data.toString())
+    })
+
+    renew.on('close', (code) => {
+      console.log(`certbot renew exited with code ${code}.`)
+    })
+  })
 
   const domain = process.env.CERT_DOMAINNAMES.split(',')[0]
-  const webroot = process.env.CERT_WEBROOT_PATH
   let certificate, certPath = `/etc/letsencrypt/live/${domain}`
 
   const server = {
@@ -26,7 +43,7 @@ const main = ( httpsApp, httpAppCustom) => {
 
   const httpApp = express()
   httpApp.get('/.well-known/acme-challenge/:fileName', (req, res) => {
-    const filePath = path.join(webroot, '.well-known/acme-challenge/', req.params.fileName)
+    const filePath = path.join('/usr/src/server', '.well-known/acme-challenge/', req.params.fileName)
     if (fs.existsSync(filePath)) {
       res.sendFile(filePath)
     } else {
@@ -36,11 +53,11 @@ const main = ( httpsApp, httpAppCustom) => {
       }) // Bad request
     }
   })
-  httpApp.use('*', httpAppCustom || httpAppDefault)
+  httpApp.use(httpAppCustom || httpAppDefault)
 
   server.http = http.createServer(httpApp)
   server.http.listen(80, () => {
-    console.log(`server (http) is listening on port 80 for webroot challenge and ${httpAppBehaviour.length} other action(s)`)
+    console.log(`server (http) is listening on port 80`)
     getNewCertificates()
   })
 
