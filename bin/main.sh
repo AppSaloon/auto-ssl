@@ -17,6 +17,7 @@ if [ -f ../../Dockerfile ]; then
     echo "Dockerfile already existed. Merge Dockerfile.new with your existing Dockerfile."
 else
     cp -v "./bin/letsencrypt_Dockerfile" "../../Dockerfile"
+    sed -i "s/\$CERT_WEBROOT_PATH/$CERT_WEBROOT_PATH/g" ../../Dockerfile
 fi
 
 echo  "auto-ssl-on-express-with-docker postinstall script: done."
