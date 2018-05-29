@@ -105,7 +105,7 @@ With this optional second parameter, `autoSsl` will still return an object, but 
 #### Environment variables<a name="environment"></a>
 When deploying your app, the following environment variables must be set:
 * `CERT_DOMAINNAMES`: this must be either a single domain name like `www.example.com` or a comma-separated list of domain names like `www.example.com,staging.example.com,api.example.com` that you want to request an SSL certificate for.
-* `CERT_EMAIL` the email address to be notified when SSL certificates are about to expire. This package has a cronjob to attempt certificate renewal every 4 weeks.
+* `CERT_EMAIL` the email address to be notified when SSL certificates are about to expire. This package has a cronjob to attempt certificate renewal every week.
 
 #### Volumes<a name="volumes"></a>
 It is recommended to set a volume for your docker service or stack, pointing to the following path: `/etc/letsencrypt`. This is a persistent storage for your certificate files, even accross redeployments of the docker service. If this step is omitted, frequent redeployments of your service may cause your domains to reach letsencrypt's weekly rate limit for SSL requests.
