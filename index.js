@@ -89,7 +89,7 @@ const main = ( httpsApp, httpAppCustom) => {
       try {
         return {
           key: fs.readFileSync(`${certPath}/privkey.pem`, 'utf8'),
-          cert: fs.readFileSync(`${certPath}/cert.pem`, 'utf8')
+          cert: fs.readFileSync(`${certPath}/fullchain.pem`, 'utf8')
         }
       } catch ( e ) {
         console.warn('Could not find certificate in ' + certPath)
@@ -107,7 +107,7 @@ const main = ( httpsApp, httpAppCustom) => {
       try {
         fs.watch(`${certPath}/privkey.pem`, () => {
           const newKey = fs.readFileSync(`${certPath}/privkey.pem`, 'utf8'),
-            newCert = fs.readFileSync(`${certPath}/cert.pem`, 'utf8')
+            newCert = fs.readFileSync(`${certPath}/fullchain.pem`, 'utf8')
           certificate = {
             key: newKey,
             cert: newCert
