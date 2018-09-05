@@ -1,6 +1,6 @@
 {
   "name": "@appsaloon/auto-ssl",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "description": "Package which installs and configures certbot to automatically generate and watch SSL certificate files.",
   "main": "index.js",
   "scripts": {
