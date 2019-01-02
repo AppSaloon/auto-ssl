@@ -1,6 +1,6 @@
 {
   "name": "@appsaloon/auto-ssl",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "description": "Package which installs and configures certbot to automatically generate and watch SSL certificate files.",
   "main": "index.js",
   "scripts": {
@@ -18,12 +18,7 @@
   },
   "homepage": "https://github.com/AppSaloon/auto-ssl-on-express-with-docker#readme",
   "dependencies": {
-    "child_process": "^1.0.2",
-    "express": "^4.16.3",
-    "fs": "0.0.1-security",
-    "http": "0.0.0",
-    "https": "^1.0.0",
-    "node-cron": "^1.2.1",
-    "path": "^0.12.7"
+    "express": "^4.16.4",
+    "node-cron": "^2.0.3"
   }
 }
