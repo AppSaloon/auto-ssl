@@ -31,7 +31,9 @@ const main = ( httpsApp, httpAppCustom) => {
   })
 
   const domain = process.env.CERT_DOMAINNAMES.split(',')[0]
-  let certificate, certPath = `/etc/letsencrypt/live/${domain}`
+  let certificate,
+      archivePath = `/etc/letsencrypt/archive/${domain}`,
+      certPath = `/etc/letsencrypt/live/${domain}`
 
   const server = {
     http: null,
@@ -105,7 +107,12 @@ const main = ( httpsApp, httpAppCustom) => {
 
     function watchCertificateFiles () { // watch certificate file for change (renewal) and update server when it does
       try {
-        fs.watch(`${certPath}/privkey.pem`, () => {
+        /*
+          certbot creates symlinks in the 'live' dir to the actual cert files in the 'archive' dir
+          when watching symlink files but node watches the target file instead of the symlink file
+          which means we need to watch the 'archive' dir instead of the symlink files in the 'live' dir
+        */
+        fs.watch(`${archivePath}`, () => {
           const newKey = fs.readFileSync(`${certPath}/privkey.pem`, 'utf8'),
             newCert = fs.readFileSync(`${certPath}/fullchain.pem`, 'utf8')
           certificate = {
